@@ -30,7 +30,16 @@ cd kampus
 npx playwright install chromium   # só na primeira vez
 npm run prints          # prints desktop (1440x900) e mobile (390x844) em ../docs/antes/
 npm run fluxos          # testa registo, CRUD de alunos, tarefas, notas e perfil (altera dados)
+
+# Tudo de uma vez, com back + Mongo + front em portas próprias e dados temporários:
+KAMPUS_BACK_DIR=../../kampus-back scripts/integrado.sh
+# PRINTS_DIR=../docs/antes para regenerar os prints do repositório
 ```
+
+O `verificar.sh` corre o `integrado.sh` automaticamente se o `kampus-back` estiver ao lado deste repositório.
+
+O relatório (alterações, o que funciona, bugs, mocks e segredos encontrados) está em
+[`docs/RELATORIO.md`](docs/RELATORIO.md).
 
 Os prints do estado de 2023 estão em [`docs/antes/`](docs/antes/) (`<página>-<desktop|mobile>.png`).
 
