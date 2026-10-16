@@ -7,7 +7,7 @@ import { Button } from "@nextui-org/react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = "https://kampus.adaptable.app";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5005";
 
 function LoginPage() {
   const [email, setEmail] = useState();

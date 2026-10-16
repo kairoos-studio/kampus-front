@@ -13,7 +13,7 @@ import {
 import { AuthContext } from "../../Context/auth.context";
 import axios from "axios";
 import { useContext, useState } from "react";
-const API_URL = "https://kampus.adaptable.app";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5005";
 
 function LandingPage() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
