@@ -7,6 +7,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:5173";
+// PRINTS_DATE (ISO, opcional): fixa o relógio do browser. Usar a mesma data que SEED_DATE no seed
+// para que "N days left" e as datas das notas saiam sempre iguais.
+const PRINTS_DATE = process.env.PRINTS_DATE;
 const here = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.resolve(process.argv[2] || path.join(here, "..", "..", "docs", "antes"));
 const PASSWORD = "Kampus123"; // palavra-passe das contas fictícias do seed (kampus-back)
@@ -34,7 +37,8 @@ async function sair(page) {
 }
 
 for (const [tamanho, opts] of Object.entries(TAMANHOS)) {
-  const context = await browser.newContext(opts);
+  const context = await browser.newContext({ ...opts, locale: "en-US", timezoneId: "UTC" });
+  if (PRINTS_DATE) await context.clock.setFixedTime(new Date(PRINTS_DATE));
   const page = await context.newPage();
   page.on("dialog", (d) => {
     console.log(`  [alert] ${d.message()}`);
@@ -93,7 +97,10 @@ for (const [tamanho, opts] of Object.entries(TAMANHOS)) {
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: "Log in" }).click();
   await page.waitForURL("**/virtualtour");
-  await page.waitForTimeout(1500);
+  // Espera que o typewriter acabe de escrever a primeira frase (estado final, estável).
+  await page
+    .getByText("ready to explore, create, and grow together.", { exact: false })
+    .waitFor({ timeout: 60000 });
   await print(page, "visita-virtual", tamanho);
 
   await page.goto(`${BASE_URL}/dashboard`);

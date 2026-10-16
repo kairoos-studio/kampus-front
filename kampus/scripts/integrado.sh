@@ -32,6 +32,9 @@ export ORIGIN="http://localhost:5173"
 export VITE_API_URL="http://localhost:$PORT"
 export API_URL="$VITE_API_URL"
 export BASE_URL="http://localhost:5173"
+# Data fixa para o seed e para o relógio do browser: prints reprodutíveis, comparáveis pixel a pixel.
+export SEED_DATE="2023-11-20T10:00:00Z"
+export PRINTS_DATE="$SEED_DATE"
 
 echo "==> back: dependências"
 (cd "$BACK" && npm ci --no-audit --no-fund >/dev/null)
@@ -56,11 +59,13 @@ PIDS+=($!)
 esperar "$BASE_URL" 60
 
 PRINTS="${PRINTS_DIR:-$TMP/prints}"
-echo "==> prints em $PRINTS e conferência com docs/antes"
+echo "==> prints em $PRINTS"
 (cd "$FRONT" && node scripts/prints.mjs "$PRINTS")
 diff <(ls "$PRINTS") <(ls "$FRONT/../docs/antes") \
-  || { echo "Os prints gerados não correspondem aos de docs/antes" >&2; exit 1; }
-echo "$(ls "$PRINTS" | wc -l) prints gerados, mesmos nomes que docs/antes"
+  || { echo "Os prints gerados não têm os mesmos nomes que docs/antes" >&2; exit 1; }
+
+echo "==> conferência de docs/antes (PNG válidos, dimensões, não vazios, iguais aos gerados)"
+(cd "$FRONT" && node scripts/conferir-prints.mjs "$PRINTS")
 
 echo "==> fluxos de ponta a ponta"
 (cd "$FRONT" && node scripts/fluxos.mjs)
