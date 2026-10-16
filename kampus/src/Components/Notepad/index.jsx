@@ -15,7 +15,7 @@ import { AuthContext } from "../../Context/auth.context";
 import addIcon from "../../assets/images/add.png";
 import removeIcon from "../../assets/images/remove.png";
 
-const API_URL = "https://kampus.adaptable.app";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5005";
 
 function NotePad() {
   const [notes, setNotes] = useState([]);

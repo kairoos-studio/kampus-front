@@ -1,3 +1,54 @@
+# Kampus (front-end, versão de 2023)
+
+## Correr localmente
+
+Precisa de Node 20 ou superior (testado com Node 24) e do back-end
+[kampus-back](https://github.com/kairoos-studio/kampus-back) a correr em `http://localhost:5005`
+com o seed aplicado (ver o README desse repositório).
+
+```bash
+cd kampus
+npm ci
+cp .env.example .env.local   # VITE_API_URL=http://localhost:5005
+npm run dev                  # http://localhost:5173
+```
+
+Contas fictícias do seed (palavra-passe `Kampus123`):
+
+| Perfil | Email | Por onde entrar |
+| ------ | ----- | --------------- |
+| Staff  | `staff@example.com` | `/login` (botão STAFF na landing) |
+| Aluno  | `aluno@example.com` | modal STUDENT em `/landing` |
+
+### Verificação, prints e fluxos
+
+```bash
+./verificar.sh            # completo: unitário + integrado (exige o kampus-back em ../kampus-back
+                          # ou KAMPUS_BACK_DIR; falha se não o encontrar)
+./verificar-unitario.sh   # só npm ci, build, lint e testes (vitest, axios simulado, sem back-end)
+
+# Com o back (seed acabado de aplicar) e o front (npm run dev) a correr:
+cd kampus
+npx playwright install chromium   # só na primeira vez
+npm run prints          # prints desktop (1440x900) e mobile (390x844) em ../docs/antes/
+npm run fluxos          # testa registo, CRUD de alunos, tarefas, notas e perfil (altera dados)
+
+# Tudo de uma vez, com back + Mongo + front em portas próprias e dados temporários:
+KAMPUS_BACK_DIR=../../kampus-back scripts/integrado.sh
+# PRINTS_DIR=../docs/antes para regenerar os prints do repositório
+```
+
+O `integrado.sh` usa `SEED_DATE`/`PRINTS_DATE` fixos (2023-11-20), por isso os prints são reprodutíveis.
+O `node scripts/conferir-prints.mjs <pasta-gerada>` valida os PNG de `docs/antes/` (descodificam, têm as
+dimensões mínimas, não estão vazios) e compara-os pixel a pixel com os gerados (falha acima de 0,5 %).
+
+O relatório (alterações, o que funciona, bugs, mocks e segredos encontrados) está em
+[`docs/RELATORIO.md`](docs/RELATORIO.md).
+
+Os prints do estado de 2023 estão em [`docs/antes/`](docs/antes/) (`<página>-<desktop|mobile>.png`).
+
+---
+
 # Project Name
 Kampus
 

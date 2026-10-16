@@ -17,7 +17,7 @@ import {
 } from "@nextui-org/react";
 import axios from "axios";
 
-const API_URL = "https://kampus.adaptable.app";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5005";
 
 function NavBar() {
   const [loggedUser, setLoggedUser] = useState();
