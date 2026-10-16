@@ -20,7 +20,23 @@ npx eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 9
 echo "==> testes"
 npm test
 
-echo "==> ficheiros versionados inalterados"
-git -C "$RAIZ" diff --exit-code --stat
+# Verificação integrada (back + front + browser): precisa do kampus-back ao lado
+# (ou KAMPUS_BACK_DIR) e do Chromium do Playwright. Sem o back, avisa e segue.
+KAMPUS_BACK_DIR="${KAMPUS_BACK_DIR:-$RAIZ/../kampus-back}"
+if [ -d "$KAMPUS_BACK_DIR/m3-rest-api/project-management-server" ]; then
+  echo "==> integrado (back em $KAMPUS_BACK_DIR)"
+  KAMPUS_BACK_DIR="$KAMPUS_BACK_DIR" ./scripts/integrado.sh
+else
+  echo "==> AVISO: kampus-back não encontrado em $KAMPUS_BACK_DIR; verificação integrada não corrida"
+fi
+
+# Só quando há repositório git; a verificação independente corre numa cópia sem .git
+# e faz esta comparação por fora.
+if git -C "$RAIZ" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "==> ficheiros versionados inalterados"
+  git -C "$RAIZ" diff --exit-code --stat
+else
+  echo "==> sem .git: comparação de ficheiros versionados feita pela verificação externa"
+fi
 
 echo "OK"

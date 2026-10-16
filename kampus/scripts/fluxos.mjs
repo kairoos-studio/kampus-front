@@ -45,6 +45,17 @@ await passo("registo de staff em /login (Sign up) entra no dashboard", async () 
   await page.getByText("USERS").waitFor();
 });
 
+await passo("registo com email repetido é recusado e a API continua de pé", async () => {
+  const res = await fetch(`${API_URL}/auth/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: novoStaff, password: PASSWORD, firstName: "Novo", lastName: "Staff", isStudent: false }),
+  });
+  if (res.status !== 400) throw new Error(`signup duplicado devolveu ${res.status}`);
+  await new Promise((r) => setTimeout(r, 300));
+  if ((await fetch(`${API_URL}/api`)).status !== 200) throw new Error("API em baixo");
+});
+
 await passo("staff cria aluno no dashboard", async () => {
   await botaoAdicionar().click();
   const modal = page.getByRole("dialog");
@@ -72,6 +83,18 @@ await passo("staff edita aluno (cohort) no dashboard", async () => {
   const users = await api("/auth/users");
   const eduardo = users.find((u) => u.email === "eduardo.aluno@example.com");
   if (eduardo.cohort !== "WD-EDITADO") throw new Error(`cohort = ${eduardo.cohort}`);
+  // Depois de criar outro aluno, a edição não pode levar valores desse aluno.
+  const esperado = { firstName: "Eduardo", lastName: "Exemplo", campus: "Campus Exemplo", isStudent: true };
+  for (const [k, v] of Object.entries(esperado)) {
+    if (eduardo[k] !== v) throw new Error(`${k} = ${eduardo[k]} (esperado ${v})`);
+  }
+  if (!users.some((u) => u.email === novoAluno)) throw new Error("aluno criado antes desapareceu");
+  const login = await fetch(`${API_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: "eduardo.aluno@example.com", password: PASSWORD }),
+  });
+  if (login.status !== 200) throw new Error(`login do aluno editado devolveu ${login.status}`);
 });
 
 await passo("staff apaga aluno no dashboard", async () => {
