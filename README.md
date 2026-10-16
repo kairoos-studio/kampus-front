@@ -1,3 +1,41 @@
+# Kampus (front-end, versão de 2023)
+
+## Correr localmente
+
+Precisa de Node 20 ou superior (testado com Node 24) e do back-end
+[kampus-back](https://github.com/kairoos-studio/kampus-back) a correr em `http://localhost:5005`
+com o seed aplicado (ver o README desse repositório).
+
+```bash
+cd kampus
+npm ci
+cp .env.example .env.local   # VITE_API_URL=http://localhost:5005
+npm run dev                  # http://localhost:5173
+```
+
+Contas fictícias do seed (palavra-passe `Kampus123`):
+
+| Perfil | Email | Por onde entrar |
+| ------ | ----- | --------------- |
+| Staff  | `staff@example.com` | `/login` (botão STAFF na landing) |
+| Aluno  | `aluno@example.com` | modal STUDENT em `/landing` |
+
+### Verificação, prints e fluxos
+
+```bash
+./verificar.sh          # npm ci, build, lint e testes (vitest, sem back-end)
+
+# Com o back (seed acabado de aplicar) e o front (npm run dev) a correr:
+cd kampus
+npx playwright install chromium   # só na primeira vez
+npm run prints          # prints desktop (1440x900) e mobile (390x844) em ../docs/antes/
+npm run fluxos          # testa registo, CRUD de alunos, tarefas, notas e perfil (altera dados)
+```
+
+Os prints do estado de 2023 estão em [`docs/antes/`](docs/antes/) (`<página>-<desktop|mobile>.png`).
+
+---
+
 # Project Name
 Kampus
 
