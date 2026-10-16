@@ -1,34 +1,23 @@
 #!/usr/bin/env bash
-# Verificação do front-end (app em kampus/): instala dependências, build, lint e testes.
+# Verificação completa do front: a unitária (verificar-unitario.sh) e a integrada
+# (kampus/scripts/integrado.sh: Mongo local + seed + API do kampus-back + front + browser,
+# fluxos reais e conferência dos prints de docs/antes). A integrada é obrigatória: precisa do
+# kampus-back em ../kampus-back ou em KAMPUS_BACK_DIR, e falha se não o encontrar.
 set -euo pipefail
 
 RAIZ="$(cd "$(dirname "$0")" && pwd)"
-cd "$RAIZ/kampus"
 
-echo "==> npm ci"
-npm ci --no-audit --no-fund
+"$RAIZ/verificar-unitario.sh"
 
-echo "==> build"
-npm run build
-
-echo "==> lint"
-# O script "lint" do projeto usa --max-warnings 0, mas o código de 2023 tem 9 avisos de
-# react-hooks/exhaustive-deps; corrigi-los mudaria o comportamento. Aqui falha com
-# qualquer erro e com qualquer aviso novo além desses 9.
-npx eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 9
-
-echo "==> testes"
-npm test
-
-# Verificação integrada (back + front + browser): precisa do kampus-back ao lado
-# (ou KAMPUS_BACK_DIR) e do Chromium do Playwright. Sem o back, avisa e segue.
 KAMPUS_BACK_DIR="${KAMPUS_BACK_DIR:-$RAIZ/../kampus-back}"
-if [ -d "$KAMPUS_BACK_DIR/m3-rest-api/project-management-server" ]; then
-  echo "==> integrado (back em $KAMPUS_BACK_DIR)"
-  KAMPUS_BACK_DIR="$KAMPUS_BACK_DIR" ./scripts/integrado.sh
-else
-  echo "==> AVISO: kampus-back não encontrado em $KAMPUS_BACK_DIR; verificação integrada não corrida"
+if [ ! -d "$KAMPUS_BACK_DIR/m3-rest-api/project-management-server" ]; then
+  echo "ERRO: kampus-back não encontrado em $KAMPUS_BACK_DIR." >&2
+  echo "      Clonar o kampus-back ao lado deste repositório ou definir KAMPUS_BACK_DIR." >&2
+  echo "      (Só a parte unitária: ./verificar-unitario.sh)" >&2
+  exit 1
 fi
+echo "==> integrado (back em $KAMPUS_BACK_DIR)"
+KAMPUS_BACK_DIR="$KAMPUS_BACK_DIR" "$RAIZ/kampus/scripts/integrado.sh"
 
 # Só quando há repositório git; a verificação independente corre numa cópia sem .git
 # e faz esta comparação por fora.
