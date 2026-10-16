@@ -23,7 +23,9 @@ Contas fictícias do seed (palavra-passe `Kampus123`):
 ### Verificação, prints e fluxos
 
 ```bash
-./verificar.sh          # npm ci, build, lint e testes (vitest, sem back-end)
+./verificar.sh            # completo: unitário + integrado (exige o kampus-back em ../kampus-back
+                          # ou KAMPUS_BACK_DIR; falha se não o encontrar)
+./verificar-unitario.sh   # só npm ci, build, lint e testes (vitest, axios simulado, sem back-end)
 
 # Com o back (seed acabado de aplicar) e o front (npm run dev) a correr:
 cd kampus
@@ -36,7 +38,9 @@ KAMPUS_BACK_DIR=../../kampus-back scripts/integrado.sh
 # PRINTS_DIR=../docs/antes para regenerar os prints do repositório
 ```
 
-O `verificar.sh` corre o `integrado.sh` automaticamente se o `kampus-back` estiver ao lado deste repositório.
+O `integrado.sh` usa `SEED_DATE`/`PRINTS_DATE` fixos (2023-11-20), por isso os prints são reprodutíveis.
+O `node scripts/conferir-prints.mjs <pasta-gerada>` valida os PNG de `docs/antes/` (descodificam, têm as
+dimensões mínimas, não estão vazios) e compara-os pixel a pixel com os gerados (falha acima de 0,5 %).
 
 O relatório (alterações, o que funciona, bugs, mocks e segredos encontrados) está em
 [`docs/RELATORIO.md`](docs/RELATORIO.md).

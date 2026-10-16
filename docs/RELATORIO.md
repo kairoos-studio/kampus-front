@@ -58,5 +58,10 @@ O resto é ferramenta à volta da app: `.env.example`, MongoDB local, seed, test
 No `kampus-front` não foram encontrados segredos (código e história).
 
 ## Verificação
-- `./verificar.sh` (cada repositório): instala, faz build, lint e testes.
-- No front, se o `kampus-back` estiver ao lado (ou em `KAMPUS_BACK_DIR`), corre também `kampus/scripts/integrado.sh`. Esse script arranca o MongoDB local, aplica o seed, arranca a API e o front, gera os prints, confirma que os nomes coincidem com `docs/antes/` e corre os fluxos reais.
+- **`./verificar.sh` do front (completo):** corre o `verificar-unitario.sh` (instala, build, lint e testes com axios simulado) e depois o `kampus/scripts/integrado.sh`.
+  - O `integrado.sh` arranca o MongoDB local, aplica o seed com data fixa e arranca a API e o front.
+  - Gera os prints com o relógio do browser fixo e confere `docs/antes/`: PNG válidos, dimensões mínimas, não vazios e iguais pixel a pixel aos gerados (tolerância de 0,5 %).
+  - Corre os fluxos reais no Chromium.
+  - Exige o `kampus-back` em `../kampus-back` ou em `KAMPUS_BACK_DIR`; sem ele, falha.
+- **`./verificar.sh` do back:** instala, faz `node --check`, lint e testes de integração da API e do seed (MongoDB em memória).
+- **O seed só apaga numa base local de demonstração.** Antes de ligar, o host tem de ser `127.0.0.1`, `localhost` ou `[::1]` e a base tem de se chamar `kampus` ou `kampus-<sufixo>`. Depois de ligar, recusa se a base tiver coleções que não sejam `users`, `tasks` ou `notes`.
